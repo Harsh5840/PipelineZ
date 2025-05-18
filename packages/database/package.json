@@ -1,21 +1,22 @@
 {
-  "name": "database",
+  "name": "@db/client",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "src/client.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "generate": "prisma generate",
+    "migrate:dev": "prisma migrate dev",
+    "migrate:deploy": "prisma migrate deploy",
+    "studio": "prisma studio",
+    "seed": "ts-node prisma/seed.ts"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "dependencies": {
-    "@prisma/client": "^6.8.2"
+    "@prisma/client": "^5.0.0"
   },
   "devDependencies": {
-    "@types/node": "^22.15.3",
-    "prisma": "^6.8.2",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.8.3"
+    "prisma": "^5.0.0",
+    "typescript": "^5.0.0",
+    "ts-node": "^10.9.0",
+    "@types/node": "^20.0.0"
   }
 }

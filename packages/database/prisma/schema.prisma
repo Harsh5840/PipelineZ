@@ -6,10 +6,222 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+// User Authentication
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  name          String?
+  password      String
+  role          Role      @default(USER)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  sessions      Session[]
+  auditLogs     AuditLog[]
+  incidentComments IncidentComment[] // Relation to IncidentComment
+  teamMemberships TeamMember[] // Relation to TeamMember
+
+  @@map("users")
+}
+
+model Session {
+  id           String   @id @default(uuid())
+  user         User     @relation(fields: [userId], references: [id])
+  userId       String
+  token        String   @unique
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
+
+  @@map("sessions")
+}
+
+enum Role {
+  USER
+  ADMIN
+  AUDITOR
+}
+
+// System Monitoring
+model SystemHealth {
+  id          String   @id @default(uuid())
+  serviceName String
+  status      HealthStatus
+  responseTime Int
+  cpuUsage    Float
+  memoryUsage Float
+  timestamp   DateTime @default(now())
+
+  @@map("system_health")
+}
+
+enum HealthStatus {
+  UP
+  DEGRADED
+  DOWN
+  MAINTENANCE
+}
+
+// CI/CD Pipeline
+model Deployment {
+  id          String   @id @default(uuid())
+  serviceName String
+  version     String
+  environment Environment
+  status      DeploymentStatus
+  startedAt   DateTime
+  completedAt DateTime?
+  duration    Int?     // in seconds
+  commitHash  String?
+  triggeredBy String?
+  logs        String?
+
+  @@map("deployments")
+}
+
+enum DeploymentStatus {
+  SUCCESS
+  FAILED
+  IN_PROGRESS
+  ROLLED_BACK
+}
+
+enum Environment {
+  DEVELOPMENT
+  STAGING
+  PRODUCTION
+}
+
+// Incident Management
+model Incident {
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  severity    SeverityLevel
+  status      IncidentStatus
+  createdAt   DateTime @default(now())
+  resolvedAt  DateTime?
+  service     String
+  assignedTo  String?
+  comments    IncidentComment[]
+
+  @@map("incidents")
+}
+
+model IncidentComment {
+  id        String   @id @default(uuid())
+  content   String
+  createdAt DateTime @default(now())
+  author    User     @relation(fields: [authorId], references: [id])
+  authorId  String
+  incident  Incident @relation(fields: [incidentId], references: [id])
+  incidentId String
+
+  @@map("incident_comments")
+}
+
+enum SeverityLevel {
+  SEV1
+  SEV2
+  SEV3
+  SEV4
+}
+
+enum IncidentStatus {
+  OPEN
+  INVESTIGATING
+  RESOLVED
+  CLOSED
+}
+
+// Code Quality Metrics
+model CodeQualityReport {
+  id              String   @id @default(uuid())
+  projectName     String
+  testCoverage    Float
+  codeSmells      Int
+  bugs            Int
+  vulnerabilities Int
+  technicalDebt   String   // e.g. "2 days"
+  timestamp       DateTime @default(now())
+
+  @@map("code_quality_reports")
+}
+
+// Infrastructure
+model InfrastructureResource {
+  id           String   @id @default(uuid())
+  resourceType ResourceType
+  name         String
+  status       ResourceStatus
+  region       String
+  costPerHour  Float
+  lastUpdated  DateTime @default(now())
+  metadata     Json?
+
+  @@map("infrastructure_resources")
+}
+
+enum ResourceType {
+  VM
+  CONTAINER
+  DATABASE
+  LOAD_BALANCER
+  STORAGE
+  NETWORK
+}
+
+enum ResourceStatus {
+  RUNNING
+  STOPPED
+  TERMINATED
+  ERROR
+}
+
+// Audit Logging
+model AuditLog {
+  id          String   @id @default(uuid())
+  action      String
+  entityType  String
+  entityId    String
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  timestamp   DateTime @default(now())
+  metadata    Json?
+
+  @@map("audit_logs")
+}
+
+// Team Collaboration
+model Team {
+  id        String   @id @default(uuid())
+  name      String
+  members   TeamMember[]
+  createdAt DateTime @default(now())
+
+  @@map("teams")
+}
+
+model TeamMember {
+  id     String @id @default(uuid())
+  team   Team   @relation(fields: [teamId], references: [id])
+  teamId String
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
+  role   TeamRole
+
+  @@unique([teamId, userId])
+
+  @@map("team_members")
+}
+
+enum TeamRole {
+  MEMBER
+  LEADER
+  OWNER
 }

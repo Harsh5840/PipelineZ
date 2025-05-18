@@ -1,8 +1,9 @@
-{
-  "name": "@db/client",
+
+  {
+  "name": "@devops-dashboard/database",  
   "version": "1.0.0",
   "description": "",
-  "main": "src/client.ts",
+  "main": "./src/client.ts",
   "scripts": {
     "generate": "prisma generate",
     "migrate:dev": "prisma migrate dev",
@@ -17,6 +18,6 @@
     "prisma": "^5.0.0",
     "typescript": "^5.0.0",
     "ts-node": "^10.9.0",
-    "@types/node": "^20.0.0"
+    "@types/node": "^20.0.0"  
   }
 }

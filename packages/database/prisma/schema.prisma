@@ -27,7 +27,7 @@ model User {
   incidentComments IncidentComment[] // Relation to IncidentComment
   teamMemberships TeamMember[] // Relation to TeamMember
 
-  @@map("users")
+  @@map("users")  // Maps the table name in the database to the model name
 }
 
 model Session {
@@ -42,9 +42,9 @@ model Session {
 }
 
 enum Role {
-  USER
-  ADMIN
-  AUDITOR
+  USER  //user is a role that can view the dashboard and make changes
+  ADMIN   //admin is a role that can make changes to the dashboard
+  AUDITOR  //auditor is a role that can view the dashboard but cannot make changes
 }
 
 // System Monitoring
@@ -72,14 +72,14 @@ model Deployment {
   id          String   @id @default(uuid())
   serviceName String
   version     String
-  environment Environment
-  status      DeploymentStatus
+  environment Environment   // Environment is an enum that can be either development, staging, or production
+  status      DeploymentStatus  
   startedAt   DateTime
   completedAt DateTime?
   duration    Int?     // in seconds
-  commitHash  String?
-  triggeredBy String?
-  logs        String?
+  commitHash  String?  // Commit hash is a string that represents a unique identifier for a commit
+  triggeredBy String?  // Triggered by is a string that represents the user who triggered the deployment
+  logs        String?  // Logs is a string that represents the logs of a deployment
 
   @@map("deployments")
 }
@@ -101,13 +101,13 @@ enum Environment {
 model Incident {
   id          String   @id @default(uuid())
   title       String
-  description String
-  severity    SeverityLevel
-  status      IncidentStatus
+  description String  
+  severity    SeverityLevel  
+  status      IncidentStatus   // IncidentStatus is an enum that can be either OPEN, INVESTIGATING, RESOLVED, or CLOSED
   createdAt   DateTime @default(now())
   resolvedAt  DateTime?
-  service     String
-  assignedTo  String?
+  service     String  // Service is a string that represents the name of the service that the incident is related to
+  assignedTo  String?  // Assigned to is a string that represents the name of the user who is assigned to the incident
   comments    IncidentComment[]
 
   @@map("incidents")
@@ -143,9 +143,9 @@ enum IncidentStatus {
 model CodeQualityReport {
   id              String   @id @default(uuid())
   projectName     String
-  testCoverage    Float
-  codeSmells      Int
-  bugs            Int
+  testCoverage    Float  // Test coverage is a float that represents the percentage of code that is covered by tests
+  codeSmells      Int  // Code smells is an integer that represents the number of code smells found in the project
+  bugs            Int  
   vulnerabilities Int
   technicalDebt   String   // e.g. "2 days"
   timestamp       DateTime @default(now())
@@ -159,7 +159,7 @@ model InfrastructureResource {
   resourceType ResourceType
   name         String
   status       ResourceStatus
-  region       String
+  region       String  // Region is a string that represents the region where the resource is located
   costPerHour  Float
   lastUpdated  DateTime @default(now())
   metadata     Json?
@@ -186,9 +186,9 @@ enum ResourceStatus {
 // Audit Logging
 model AuditLog {
   id          String   @id @default(uuid())
-  action      String
-  entityType  String
-  entityId    String
+  action      String  // Action is a string that represents the action that was performed
+  entityType  String  // Entity type is a string that represents the type of entity that was affected
+  entityId    String   
   userId      String
   user        User     @relation(fields: [userId], references: [id])
   timestamp   DateTime @default(now())
